@@ -1,0 +1,17 @@
+{
+    "name": "esdlyonb1-2425/frameworkphp",
+    "description": "A simple PHP MVC framework",
+    "type": "project",
+    "autoload": {
+        "psr-4": {
+            "App\\": "src/",
+            "Core\\": "core/"
+        }
+    },
+    "authors": [
+        {
+            "name": "ESD Lyon B1 2425"
+        }
+    ],
+    "require": {}
+}
