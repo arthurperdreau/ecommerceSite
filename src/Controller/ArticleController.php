@@ -3,6 +3,7 @@
 namespace App\Controller;
 
 use App\Entity\Article;
+use App\Form\addPanierType;
 use App\Form\ArticleType;
 use App\Repository\ArticleRepository;
 use App\Repository\LivraisonRepository;
@@ -28,6 +29,22 @@ class ArticleController extends Controller
         ]);
     }
 
+    #[Route('/articles/admin', routeName: 'articlesForAdmin')]
+    public function articlesAdmin()
+    {
+        if (!isset($_SESSION["user"])) {
+            return $this->redirectToRoute("articles");
+        }
+        $session = $_SESSION["user"];
+        if ($session["username"] != "arthur") {
+            return $this->redirectToRoute("articles");
+        }
+        $articles=$this->getRepository()->findAll();
+        return $this->render('article/articlesAdmin', [
+            'articles' => $articles,
+        ]);
+    }
+
     #[Route(uri:'/article/show', routeName: 'article')]
     public function show(): Response
     {
@@ -40,8 +57,6 @@ class ArticleController extends Controller
         if(!$article){
             return $this->redirectToRoute('articles');
         }
-
-
         return $this->render('article/show', [
             'article' => $article,
         ]);
@@ -50,6 +65,13 @@ class ArticleController extends Controller
     #[Route(uri:'/create', routeName: 'newArticle')]
     public function create(): Response
     {
+        if (!isset($_SESSION["user"])) {
+            return $this->redirectToRoute("articles");
+        }
+        $session = $_SESSION["user"];
+        if ($session["username"] != "arthur") {
+            return $this->redirectToRoute("articles");
+        }
         $repository=$this->getRepository();
         $article = new Article();
         $articleForm = new ArticleType($repository);
@@ -61,16 +83,86 @@ class ArticleController extends Controller
 
         return $this->render('article/create', []);
     }
+
+    #[Route(uri:'/article/update', routeName: 'updateArticle')]
+    public function update(): Response
+    {
+        if (!isset($_SESSION["user"])) {
+            return $this->redirectToRoute("articles");
+        }
+        $session = $_SESSION["user"];
+        if ($session["username"] != "arthur") {
+            return $this->redirectToRoute("articles");
+        }
+        $repository=$this->getRepository();
+        $id = $this->getRequest()->get(["id" => "number"]);
+        $article = $this->getRepository()->find($id);
+        $updateArticleForm = new ArticleType($repository);
+
+        if ($updateArticleForm->isSubmitted()) {
+            $article->setTitle($updateArticleForm->getValue('title'));
+            $article->setDescription($updateArticleForm->getValue('description'));
+            $article->setPrix($updateArticleForm->getValue('prix'));
+            $article->setStock($updateArticleForm->getValue('stock'));
+            $article->setActif($article->getActif());
+            $this->getRepository()->updateArticle($article);
+            return $this->redirectToRoute('articlesForAdmin', []);
+        }
+
+        return $this->render('article/update', ["article"=>$article]);
+    }
+
+    #[Route(uri:'/article/retirer', routeName: 'removeArticle')]
+    public function remove()
+    {
+        if (!isset($_SESSION["user"])) {
+            return $this->redirectToRoute("articles");
+        }
+        $session = $_SESSION["user"];
+        if ($session["username"] != "arthur") {
+            return $this->redirectToRoute("articles");
+        }
+        $id = $this->getRequest()->get(["id" => "number"]);
+        $article = $this->getRepository()->find($id);
+        $article->setActif(0);
+        $this->getRepository()->updateArticle($article);
+        if (\Core\Session\Session::get("panier")[$id]){
+            $session=\Core\Session\Session::get("panier");
+            unset($session[$id]);
+            \Core\Session\Session::set("panier",$session);
+        }
+        return $this->redirectToRoute('articlesForAdmin', []);
+    }
+
+    #[Route(uri:'/article/actif', routeName: 'addAgainArticle')]
+    public function addAgain()
+    {
+        if (!isset($_SESSION["user"])) {
+            return $this->redirectToRoute("articles");
+        }
+        $session = $_SESSION["user"];
+        if ($session["username"] != "arthur") {
+            return $this->redirectToRoute("articles");
+        }
+
+        $id = $this->getRequest()->get(["id" => "number"]);
+        $article = $this->getRepository()->find($id);
+        $article->setActif(1);
+        $this->getRepository()->updateArticle($article);
+        return $this->redirectToRoute('articlesForAdmin', []);
+    }
+
+
     #[Route(uri:'/article/add', routeName: 'ajoutPanier')]
     public function addPanier(): Response
     {
         //var_dump($_SESSION);
         if (!isset($_SESSION["user"])) {
-            return $this->redirectToRoute("profile");
+            return $this->redirectToRoute("articles");
         }
-
+        $quantite=$this->getRequest()->get(["quantity"=>"number"]);
         $id = $this->getRequest()->get(["id" => "number"]);
-        if (!$id) {
+        if (!$id || !is_numeric($quantite)) {
             return $this->redirectToRoute('articles');
         }
 
@@ -88,18 +180,20 @@ class ArticleController extends Controller
                 throw new \Exception("Key not found");
             }
         } catch (\Exception $e) {
-            $panier["{$id}"] = 1;
+            $panier["{$id}"] = $quantite;
             \Core\Session\Session::set("panier", $panier);
             return $this->render('article/ajoutPanier', [
                 'article' => $article,
+                'quantite' => $quantite,
             ]);
         }
 
-        $panier["{$id}"] += 1;
+        $panier["{$id}"] += $quantite;
         \Core\Session\Session::set("panier", $panier);
 
         return $this->render('article/ajoutPanier', [
             'article' => $article,
+            'quantite' => $quantite,
         ]);
     }
 
@@ -153,7 +247,7 @@ class ArticleController extends Controller
             $this->render('profile/profile',[
             "paiementRepository"=>$paiementRepository,
             "user"=>$user,
-                "livraisonRepository"=>$livraisonRepository,
+            "livraisonRepository"=>$livraisonRepository,
         ]);}
         $this->render('profile/profile',[]);
     }

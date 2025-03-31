@@ -44,7 +44,8 @@ class LivraisonController extends Controller
     {
         $id = $this->getRequest()->get(["id" => "number"]);
         $adresse=$this->getRepository()->find($id);
-        $this->getRepository()->delete($adresse);
+        $adresse->setActif(0);
+        $this->getRepository()->updateLivraison($adresse);
         return $this->redirectToRoute('profile');
     }
 

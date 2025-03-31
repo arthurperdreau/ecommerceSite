@@ -44,7 +44,8 @@ class PaiementController extends Controller
     {
         $id = $this->getRequest()->get(["id" => "number"]);
         $card=$this->getRepository()->find($id);
-        $this->getRepository()->delete($card);
+        $card->setActif(0);
+        $this->getRepository()->updatePaiement($card);
         return $this->redirectToRoute('profile');
     }
 

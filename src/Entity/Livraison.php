@@ -17,6 +17,7 @@ class Livraison
     private string $address;
     private string $city;
     private string $postalCode;
+    private int $actif;
 
     public function getId(): int
     {
@@ -71,6 +72,16 @@ class Livraison
     public function setPostalCode(string $postalCode): void
     {
         $this->postalCode = $postalCode;
+    }
+
+    public function getActif(): int
+    {
+        return $this->actif;
+    }
+
+    public function setActif(int $actif): void
+    {
+        $this->actif = $actif;
     }
 
 

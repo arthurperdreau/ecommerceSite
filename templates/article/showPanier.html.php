@@ -1,31 +1,57 @@
-<div class="d-flex w-100 justify-content-between align-items-center">
-    <a href="/" class="btn fs-2"> < </a>
-</div>
-<div class="w-100 h-auto d-flex">
-<div class="w-75 h-auto d-flex justify-content-center flex-column align-items-center">
-    <?php if (!empty($panierDecompose)) { ?>
-        <h3>Contenu du panier :</h3><br>
-        <?php foreach ($panierDecompose as $quantite => $value) { ?>
-            <div class="border border-dark justify-content-center d-flex  align-items-center col-auto p-3 rounded mb-2">
-                <span class="me-3"><?= $value->getTitle() ?></span>
-                <span class="me-3">Prix : <?= $value->getPrix() . " €" ?></span>
-                <span class="">Quantité :<?php echo $quantite; ?></span>
-                <?php //var_dump($panierDecompose)?>
-                <a href="/panier/delete/?id=<?= $value->getId() ?>" ><i class="bi bi-trash ms-2"></i></a>
+<div class="container my-5">
+    <div class="row">
+        <div class="col-lg-8">
+            <div class="d-flex align-items-center mb-3">
+                <a href="/" class="btn btn-outline-primary fs-4">
+                    <i class="bi bi-arrow-left"></i>
+                </a>
+                <h2 class="ms-3">Votre panier</h2>
             </div>
-        <?php } ?>
-    <?php } else { ?>
-        <h3>Panier vide</h3>
-    <?php } ?>
-</div>
-<div class="w-25">
-    <?php if (!empty($panierDecompose)) { ?>
-        <h3>Informations sur la commande :</h3><br>
-        <?php $total=0;foreach ($panierDecompose as $quantite => $value) {
-            $total+=floatval($value->getPrix())*floatval($quantite);
-        } ?>
-    <?php } else { $total=0; }?>
-    <h4>Total : <?= $total ?>€</h4>
-    <a href="/panier/commande" class="btn btn-primary "> commander</a>
-</div>
+
+            <?php if (!empty($panierDecompose)) { ?>
+                <?php foreach ($panierDecompose as $quantite => $value) { ?>
+                    <div class="card shadow-sm mb-3">
+                        <div class="card-body d-flex justify-content-between align-items-center">
+                            <div>
+                                <h5 class="card-title mb-1"><?= $value->getTitle() ?></h5>
+                                <p class="mb-0 text-muted">Prix unitaire : <?= number_format($value->getPrix(), 2); ?> €</p>
+                                <p class="mb-0">Quantité : <strong><?= $quantite; ?></strong></p>
+                                <p class="text-success fw-bold">Total : <?= number_format($quantite * $value->getPrix(), 2); ?> €</p>
+                            </div>
+                            <a href="/panier/delete/?id=<?= $value->getId() ?>" class="text-danger fs-4">
+                                <i class="bi bi-trash"></i>
+                            </a>
+                        </div>
+                    </div>
+                <?php } ?>
+            <?php } else { ?>
+                <div class="alert alert-warning text-center">
+                    <h4>Votre panier est vide 🛒</h4>
+                </div>
+            <?php } ?>
+        </div>
+
+        <div class="col-lg-4">
+            <div class="card shadow-lg p-3">
+                <div class="card-body">
+                    <h3 class="fw-bold mb-3">🛍️ Récapitulatif</h3>
+
+                    <?php $total = 0;
+                    if (!empty($panierDecompose)) {
+                        foreach ($panierDecompose as $quantite => $value) {
+                            $total += floatval($value->getPrix()) * floatval($quantite);
+                        }
+                    } ?>
+
+                    <h4 class="text-success">Total : <?= number_format($total, 2); ?> €</h4>
+
+                    <div class="d-grid mt-4">
+                        <a href="/panier/commande" class="btn btn-primary btn-lg">
+                            <i class="bi bi-cart-check"></i> Passer la commande
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
 </div>

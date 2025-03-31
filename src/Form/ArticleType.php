@@ -32,6 +32,7 @@ class ArticleType extends FormType
         $article->setDescription($this->getValue("description"));
         $article->setPrix($this->getValue("prix"));
         $article->setStock($this->getValue("stock"));
+        $article->setActif(1);
 
         return $this->repository->saveArticle($article); //-> return de l'id
     }

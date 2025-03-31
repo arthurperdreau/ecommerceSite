@@ -17,6 +17,7 @@ class Paiement
     private string $cardNumber;
     private string $cardExpiry;
     private string $cardCvv;
+    private int $actif;
 
     public function getUserId(): int
     {
@@ -70,5 +71,15 @@ class Paiement
     public function getId(): int
     {
         return $this->id;
+    }
+
+    public function getActif(): int
+    {
+        return $this->actif;
+    }
+
+    public function setActif(int $actif): void
+    {
+        $this->actif = $actif;
     }
 }

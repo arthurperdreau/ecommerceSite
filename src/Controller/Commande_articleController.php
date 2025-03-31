@@ -67,6 +67,7 @@ class Commande_articleController extends Controller
             $commandeRepository=new CommandeRepository();
             $idCommande=$commandeRepository->saveCommande($newCommande);
             $panierAvecBonneQuantite=[];
+            $articleManquant=[];
             foreach ($panierDecompose as $quantite => $articleCommande) {
                 $newCommandeArticle=new Commande_article();
                 $newCommandeArticle->setCommandeId($idCommande);
@@ -74,6 +75,7 @@ class Commande_articleController extends Controller
                 if ($articleCommande->getStock()<$quantite) {
                     $newCommandeArticle->setQuantite($articleCommande->getStock());
                     $articleCommande->setStock(0);
+                    $articleManquant[] = $articleCommande->getTitle();
                 }else{
                     $newCommandeArticle->setQuantite($quantite);
                     $articleCommande->setStock($articleCommande->getStock() - $quantite);
@@ -99,6 +101,7 @@ class Commande_articleController extends Controller
                     "panierAvecBonneQuantite" => $panierAvecBonneQuantite,
                     "adresse" => $adresse,
                     "card" => $card,
+                    "articleManquant" => $articleManquant,
                 ]);
         }
         return $this->render('commande/commande',["user"=>$user,"paiementRepository"=>$paiementRepository, "livraisonRepository"=>$livraisonRepository]);

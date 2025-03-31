@@ -17,6 +17,8 @@ class Article
     private string $description;
     private int $stock;
 
+    private int $actif;
+
     public function getId(): int
     {
         return $this->id;
@@ -60,6 +62,16 @@ class Article
     public function setStock(int $stock): void
     {
         $this->stock = $stock;
+    }
+
+    public function getActif(): int
+    {
+        return $this->actif;
+    }
+
+    public function setActif(int $actif): void
+    {
+        $this->actif = $actif;
     }
 
 }
